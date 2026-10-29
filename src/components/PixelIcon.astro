@@ -1,0 +1,27 @@
+---
+// Logo em pixel art, inline (sem requisição extra). Os dados vêm de src/data/pixel-icons.ts.
+// Use tamanhos múltiplos de 24 (24, 48…): fora disso os pixels saem com larguras desiguais.
+// O desenho sempre usa a grade de 48×48 (traço mais fino). Só em 24 px numa tela comum
+// (1 pixel físico por pixel CSS) entra a grade de 24, que é a única que fica nítida ali.
+import { pixelIcons, type PixelIconName } from '../data/pixel-icons';
+
+interface Props { name: PixelIconName; size?: number; class?: string }
+const { name, size = 24, class: cls } = Astro.props;
+const icon = pixelIcons[name];
+const small = size < 48;
+---
+
+<svg class:list={['pixel-icon', cls, { small }]} viewBox="0 0 48 48" width={size} height={size}
+  shape-rendering="crispEdges" aria-hidden="true" style={`--c-dark:${icon.color};--c-light:${icon.colorLight}`}>
+  <path class="hi" d={icon.d48} fill="var(--c)" />
+  {small && <path class="lo" d={icon.d} transform="scale(2)" fill="var(--c)" />}
+</svg>
+
+<style>
+  .pixel-icon { display: block; flex: none; }
+  .small .lo { display: none; }
+  @media (max-resolution: 1.5dppx) {
+    .small .hi { display: none; }
+    .small .lo { display: inline; }
+  }
+</style>

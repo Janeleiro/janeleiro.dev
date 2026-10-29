@@ -1,0 +1,107 @@
+---
+// Abertura no formato de tela de status de RPG: retrato, atributos, XP e itens equipados,
+// com a fala digitada embaixo (landing.ts cuida da digitação via [data-typing]).
+import XpBar from './XpBar.astro';
+import PixelIcon from './PixelIcon.astro';
+import type { PixelIconName } from '../data/pixel-icons';
+import { t, type Lang } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const stats = [
+  { k: 'Função', v: t(lang, 'role') },
+  { k: 'Região', v: 'Conceição do Coité, BA' },
+  { k: 'Modo', v: 'Remoto' },
+  { k: 'Idiomas', v: 'Português · Inglês' },
+];
+const equipped: { name: string; icon: PixelIconName }[] = [
+  { name: 'PHP', icon: 'php' },
+  { name: 'Laravel', icon: 'laravel' },
+  { name: 'Vue', icon: 'vuedotjs' },
+  { name: 'WordPress', icon: 'wordpress' },
+];
+---
+
+<div class="status" data-typing>
+  <div class="top">
+    <figure class="portrait">
+      <img src="/img/avatar-384.webp" srcset="/img/avatar-192.webp 192w, /img/avatar-384.webp 384w, /img/avatar-512.webp 512w"
+        sizes="(max-width: 640px) 120px, 240px" width="240" height="240" alt="Retrato em pixel art do Jota" fetchpriority="high" />
+      <figcaption>@janeleiro</figcaption>
+    </figure>
+
+    <div class="sheet">
+      <div class="names">
+        <h1>Jota Carvalho</h1>
+        <p class="realname">Carlos Alberto P. de Carvalho Júnior</p>
+      </div>
+      <dl>
+        {stats.map(({ k, v }, i) => (
+          <div class="stat" style={`--i:${i}`}><dt>{k}</dt><dd>{v}</dd></div>
+        ))}
+      </dl>
+      <XpBar lang={lang} />
+      <div class="equip">
+        <span class="k">Stack principal</span>
+        <ul>{equipped.map(({ name, icon }, i) => <li style={`--i:${i}`}><PixelIcon name={icon} size={24} />{name}</li>)}</ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="say">
+    <p>Olá! Eu sou o Jota, mas pela internet você me encontra como <strong>Janeleiro</strong>. Desde 2018 eu construo sistemas e sites com PHP, Laravel e Vue, trabalhando de forma remota a partir do interior da Bahia.</p>
+  </div>
+</div>
+
+<style>
+  .status {
+    background: var(--panel); border: 2px solid var(--edge);
+    box-shadow: 0 0 0 1px var(--bg), 0 0 0 4px var(--edge), 0 30px 60px -30px var(--shadow);
+    display: grid;
+  }
+  .top { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 28px; padding: 24px; align-items: start; }
+  @media (max-width: 640px) { .top { grid-template-columns: 1fr; justify-items: start; gap: 20px; padding: 18px; } }
+
+  .portrait { margin: 0; display: grid; gap: 8px; position: relative; }
+  .portrait img { width: 240px; height: 240px; border: 2px solid var(--edge); animation: idle 1.4s steps(1) infinite; }
+  @media (max-width: 640px) { .portrait img { width: 120px; height: 120px; } }
+  /* Cantoneiras de seleção de personagem */
+  .portrait::before, .portrait::after {
+    content: ''; position: absolute; width: 18px; height: 18px; border: 3px solid var(--accent);
+    animation: blink 1.6s steps(1) infinite;
+  }
+  .portrait::before { top: -7px; left: -7px; border-right: 0; border-bottom: 0; }
+  .portrait::after { top: calc(100% - 37px); right: -7px; border-left: 0; border-top: 0; }
+  @media (max-width: 640px) { .portrait::after { right: auto; left: calc(120px - 11px); } }
+  figcaption { font-family: var(--f-mono); font-size: var(--mono-m); color: var(--accent); }
+
+  .sheet { display: grid; gap: 18px; min-width: 0; }
+  .names { display: grid; gap: 4px; }
+  .realname { color: var(--muted); font-size: var(--step--1); }
+  dl { margin: 0; display: grid; gap: 6px; }
+  .stat { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 12px; border-bottom: 1px dotted var(--edge); padding-bottom: 6px; }
+  dt { font-family: var(--f-mono); color: var(--muted); font-size: var(--mono-m); line-height: 1.4; }
+  dd { margin: 0; }
+  :global(html.js) .stat { animation: statIn .4s steps(4) calc(var(--i) * 90ms + .2s) both; }
+  @keyframes statIn { from { opacity: 0; transform: translateX(-10px); } }
+
+  .equip { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  .k { font-family: var(--f-mono); color: var(--muted); font-size: var(--mono-m); }
+  .equip ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .equip li {
+    font-family: var(--f-pixel); font-weight: 500; color: var(--accent); border: 1px solid var(--accent);
+    padding: 4px 10px; display: flex; gap: 8px; align-items: center; background: var(--bg);
+    transition: transform .15s, box-shadow .15s;
+  }
+  :global(html.js) .equip li { animation: pop .35s steps(3) calc(var(--i) * 110ms + .8s) backwards; }
+  @keyframes pop { from { opacity: 0; transform: scale(.6); } }
+  .equip li:hover :global(.pixel-icon) { animation: hop .5s steps(3); }
+  @keyframes hop { 50% { transform: translateY(-4px); } }
+  .equip li:hover { transform: translateY(-3px); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+
+  .say { border-top: 2px solid var(--edge); padding: 18px 24px 20px; display: grid; gap: 12px; background: color-mix(in srgb, var(--bg) 35%, var(--panel)); }
+  .say > :global(:last-child)::after { content: ' ▼'; color: var(--accent); font-size: 0.7em; animation: blink 1s steps(1) infinite; }
+  :global(html.js) [data-typing]:not(.done) .say > :global(:last-child)::after { content: '▌'; }
+  @keyframes idle { 50% { transform: translateY(-2px); } }
+</style>

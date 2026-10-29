@@ -1,0 +1,95 @@
+---
+import { t, type Lang } from '../i18n/ui';
+import Settings from './Settings.astro';
+import PixelIcon from './PixelIcon.astro';
+import type { PixelIconName } from '../data/pixel-icons';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+// Âncoras com "/" na frente para funcionarem também a partir da 404.
+// `short` e `icon` são da barra inferior do celular.
+const links: { id: string; key: Parameters<typeof t>[1]; short: string; icon: PixelIconName }[] = [
+  { id: 'inicio', key: 'nav.home', short: 'Início', icon: 'home' },
+  { id: 'sobre', key: 'nav.about', short: 'Sobre', icon: 'user' },
+  { id: 'trabalho', key: 'nav.work', short: 'Trabalho', icon: 'briefcase' },
+  { id: 'projetos', key: 'nav.projects', short: 'Projetos', icon: 'folder' },
+  { id: 'contato', key: 'nav.contact', short: 'Contato', icon: 'email' },
+];
+---
+
+<header class="bar">
+  <nav aria-label="Principal">
+    <a class="brand" href="/#inicio">janeleiro<span>.dev</span></a>
+    <ul class="top-links">
+      {links.map(({ id, key }) => (
+        <li><a href={`/#${id}`} data-spy={id}>{t(lang, key)}</a></li>
+      ))}
+    </ul>
+    <div class="tools"><Settings /></div>
+  </nav>
+</header>
+
+<!-- No celular, as seções vão para uma barra fixa no rodapé, ao alcance do polegar -->
+<nav class="tabbar" aria-label="Seções">
+  <ul>
+    {links.map(({ id, short, icon }) => (
+      <li><a href={`/#${id}`} data-spy={id}><PixelIcon name={icon} size={24} /><span>{short}</span></a></li>
+    ))}
+  </ul>
+</nav>
+
+<style>
+  .bar {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+    margin-inline: calc(-1 * max(var(--gutter), env(safe-area-inset-left, 0px)));
+    padding-inline: max(var(--gutter), env(safe-area-inset-left, 0px));
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid transparent;
+    transition: border-color .3s;
+  }
+  :global(html.scrolled) .bar { border-bottom-color: var(--edge); }
+  .bar nav {
+    max-width: 880px; margin: 0 auto; padding-block: 14px;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; font-family: var(--f-pixel);
+  }
+  .tools { display: flex; }
+  .brand { color: var(--fg); text-decoration: none; font-weight: 500; font-size: var(--step-1); }
+  .brand span { color: var(--accent); }
+  .top-links { margin-left: auto; list-style: none; padding: 0 0 0 0.9em; display: flex; flex-wrap: wrap; gap: 6px 20px; }
+  .top-links a { color: var(--muted); text-decoration: none; font-weight: 500; position: relative; transition: color .2s; }
+  .top-links a::before {
+    content: '▸'; position: absolute; left: -0.9em; color: var(--accent);
+    opacity: 0; transform: translateX(-4px); transition: opacity .2s, transform .2s;
+  }
+  .top-links a:hover { color: var(--fg); }
+  .top-links a[aria-current='true'] { color: var(--accent); }
+  .top-links a[aria-current='true']::before { opacity: 1; transform: none; }
+
+  .tabbar { display: none; }
+
+  @media (max-width: 720px) {
+    .top-links { display: none; }
+    .tabbar {
+      display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+      padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
+      background: color-mix(in srgb, var(--panel) 92%, transparent);
+      backdrop-filter: blur(8px);
+      border-top: 2px solid var(--edge);
+    }
+    .tabbar ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); }
+    .tabbar a {
+      display: grid; justify-items: center; gap: 3px; padding: 6px 2px; min-height: 48px;
+      color: var(--muted); text-decoration: none; font-size: 0.72rem; position: relative;
+    }
+    .tabbar a span { white-space: nowrap; }
+    /* Ícones claros ficam apagados até a seção estar ativa */
+    .tabbar :global(.pixel-icon) { opacity: .7; transition: opacity .2s, transform .2s; }
+    .tabbar a[aria-current='true'] { color: var(--accent); }
+    .tabbar a[aria-current='true'] :global(.pixel-icon) { opacity: 1; transform: translateY(-2px); --c: var(--accent); }
+    .tabbar a[aria-current='true']::before {
+      content: ''; position: absolute; top: -8px; left: 30%; right: 30%; height: 3px; background: var(--accent);
+    }
+  }
+</style>

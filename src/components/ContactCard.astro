@@ -1,0 +1,29 @@
+---
+import PixelIcon from './PixelIcon.astro';
+import type { ContactLink } from '../data/contact';
+
+interface Props { link: ContactLink }
+const { name, icon, handle, href } = Astro.props.link;
+const external = href.startsWith('https://');
+---
+
+<a class="card" href={href} {...(external ? { rel: 'me noopener', target: '_blank' } : {})}>
+  <PixelIcon name={icon} size={48} />
+  <span class="txt"><span class="name">{name}</span><span class="handle">{handle}</span></span>
+  {external && <span class="sr-only"> (abre em nova aba)</span>}
+</a>
+
+<style>
+  .card {
+    width: 100%; display: flex; align-items: center; gap: 14px; padding: 16px; text-align: left;
+    background: var(--panel); border: 1px solid var(--edge); color: var(--fg); text-decoration: none;
+    transition: transform .15s, border-color .15s;
+  }
+  .card:hover { transform: translateY(-3px); border-color: var(--accent); }
+  .card:hover .name::before { content: '▸ '; color: var(--accent); }
+  .card:hover :global(.pixel-icon) { animation: hop .5s steps(3); }
+  .txt { display: grid; gap: 2px; min-width: 0; flex: 1; }
+  .name { font-family: var(--f-pixel); font-weight: 500; }
+  .handle { color: var(--muted); font-size: var(--step--1); overflow-wrap: anywhere; }
+  @keyframes hop { 50% { transform: translateY(-5px); } }
+</style>

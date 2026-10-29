@@ -1,0 +1,134 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Clawd from '../components/Clawd.astro';
+import { t, type Lang } from '../i18n/ui';
+// Fontes usadas na primeira tela: pré-carregadas para o texto não mudar de tamanho ao chegarem
+import fontPixel from '@fontsource/pixelify-sans/files/pixelify-sans-latin-500-normal.woff2?url';
+import fontText from '@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-400-normal.woff2?url';
+import fontMono from '@fontsource/vt323/files/vt323-latin-400-normal.woff2?url';
+
+interface Props {
+  title: string;
+  description: string;
+  lang?: Lang;
+  // Páginas que não devem aparecer em buscadores (ex.: 404)
+  noindex?: boolean;
+}
+
+const { title, description, lang = 'pt', noindex = false } = Astro.props;
+const fullTitle = title.startsWith('Jota Carvalho') ? title : `${title} · Jota Carvalho`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/img/og.png', Astro.site);
+---
+
+<!doctype html>
+<html lang={lang === 'pt' ? 'pt-BR' : 'en'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <meta name="author" content="Jota Carvalho" />
+    <meta name="theme-color" content="#111726" />
+    {[fontPixel, fontText, fontMono].map((href) => <link rel="preload" href={href} as="font" type="font/woff2" crossorigin />)}
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="janeleiro.dev" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Retrato em pixel art do Jota Carvalho, com o texto Full-stack developer: PHP, Laravel, Vue e WordPress" />
+    <meta property="og:locale" content={lang === 'pt' ? 'pt_BR' : 'en_US'} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image:alt" content="Retrato em pixel art do Jota Carvalho" />
+    <!-- Preferências (tema, contraste, movimento, fonte, leitura) aplicadas antes da pintura,
+         para não piscar. "auto" segue o sistema e acompanha mudanças dele. -->
+    <script is:inline>
+      (function () {
+        var d = document.documentElement, KEY = 'janeleiro.prefs', p = {};
+        try { p = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
+        var mq = function (q) { return matchMedia(q).matches; };
+        var bg = { dark: '#111726', light: '#eef1f7' };
+        function apply() {
+          var theme = p.theme === 'light' || p.theme === 'dark' ? p.theme : (mq('(prefers-color-scheme: light)') ? 'light' : 'dark');
+          d.dataset.theme = theme;
+          d.dataset.contrast = p.contrast || (mq('(prefers-contrast: more)') ? 'high' : 'normal');
+          d.dataset.motion = p.motion || (mq('(prefers-reduced-motion: reduce)') ? 'reduce' : 'full');
+          if (p.reading) d.dataset.reading = 'on'; else delete d.dataset.reading;
+          d.style.setProperty('--font-scale', String(p.fontScale || 1));
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.content = d.dataset.contrast === 'high' ? (theme === 'light' ? '#ffffff' : '#000000') : bg[theme];
+        }
+        function save() {
+          try { localStorage.setItem(KEY, JSON.stringify(p)); } catch (e) {}
+          apply();
+          document.dispatchEvent(new Event('prefs-change'));
+        }
+        window.janeleiroPrefs = {
+          get: function () { return p; },
+          set: function (k, v) { if (v == null) delete p[k]; else p[k] = v; save(); },
+          reset: function () { p = {}; save(); },
+        };
+        apply();
+        ['(prefers-color-scheme: light)', '(prefers-contrast: more)', '(prefers-reduced-motion: reduce)'].forEach(function (q) {
+          matchMedia(q).addEventListener('change', apply);
+        });
+        d.classList.add('js');
+      })();
+    </script>
+    <slot name="head" />
+  </head>
+  <body>
+    <div class="sky" aria-hidden="true"></div>
+    <a class="skip sr-only" href="#conteudo">{t(lang, 'nav.skip')}</a>
+    <Nav lang={lang} />
+    <div class="container">
+      <main id="conteudo">
+        <slot />
+      </main>
+      <footer class="site-footer">
+        <a class="clawd-spot" href="https://claude.com/claude-code" target="_blank" rel="noopener" title="Feito com Claude Code"><Clawd /><span class="sr-only">Claude Code</span></a>
+        <span>© {new Date().getFullYear()} Jota Carvalho · Janeleiro</span>
+        <span>{t(lang, 'footer')}</span>
+        <span class="credits">O Gopher foi criado por Renée French (CC BY 4.0), o elePHPant por Vincent Pontier e o Clawd é o mascote do Claude Code, da Anthropic. Logos via Simple Icons.</span>
+      </footer>
+    </div>
+  </body>
+</html>
+
+<style>
+  .container { position: relative; padding-block: 0 40px; display: grid; gap: 48px; }
+  .skip:focus { position: fixed; top: 8px; left: 8px; width: auto; height: auto; clip: auto; z-index: 30; background: var(--panel); padding: 8px 12px; }
+  .site-footer {
+    position: relative;
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px;
+    border-top: 1px solid var(--edge); padding-top: 20px;
+    color: var(--muted); font-size: var(--step--1);
+  }
+  /* Clawd em pé sobre a linha do rodapé */
+  .clawd-spot { position: absolute; right: 12px; bottom: 100%; margin-bottom: 1px; line-height: 0; }
+  .credits { flex-basis: 100%; font-size: 0.8rem; }
+  /* Céu de pixels: duas camadas de pontos subindo bem devagar. Só transform, para rodar no compositor. */
+  .sky { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: -1; }
+  .sky::before, .sky::after {
+    content: ''; position: absolute; left: 0; right: 0; top: 0; height: 200%;
+    background-image:
+      radial-gradient(1.5px 1.5px at 20px 30px, var(--edge) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 140px 90px, var(--edge) 50%, transparent 51%),
+      radial-gradient(2px 2px at 260px 170px, var(--muted) 50%, transparent 51%);
+    background-size: 320px 240px;
+    opacity: .35;
+    animation: drift 140s linear infinite;
+    will-change: transform;
+  }
+  .sky::after { background-size: 480px 360px; opacity: .25; animation-duration: 90s; background-position: 60px 40px; }
+  @keyframes drift { to { transform: translateY(-50%); } }
+</style>

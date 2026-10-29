@@ -1,0 +1,143 @@
+---
+// Painel de exibição e acessibilidade: tema, tamanho do texto, menos animação,
+// alto contraste, modo leitura e impressão. Usa a Popover API (fecha com Esc e ao clicar fora).
+// As preferências ficam no localStorage via window.janeleiroPrefs (definido em Base.astro).
+---
+
+<button type="button" class="toggle" popovertarget="prefs-panel" aria-label="Preferências de exibição e acessibilidade" title="Exibição e acessibilidade">
+  <!-- Engrenagem em pixel art (grade 24×24, exibida a 1:1) -->
+  <svg viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true">
+    <path fill="currentColor" d="M10 3h4v1h-4zM10 4h4v1h-4zM5 5h3v1h-3zM10 5h4v1h-4zM16 5h3v1h-3zM5 6h14v1h-14zM5 7h6v1h-6zM13 7h6v1h-6zM6 8h3v1h-3zM15 8h3v1h-3zM6 9h2v1h-2zM16 9h2v1h-2zM3 10h5v1h-5zM16 10h5v1h-5zM3 11h4v1h-4zM17 11h4v1h-4zM3 12h4v1h-4zM17 12h4v1h-4zM3 13h5v1h-5zM16 13h5v1h-5zM6 14h2v1h-2zM16 14h2v1h-2zM6 15h3v1h-3zM15 15h3v1h-3zM5 16h6v1h-6zM13 16h6v1h-6zM5 17h14v1h-14zM5 18h3v1h-3zM10 18h4v1h-4zM16 18h3v1h-3zM10 19h4v1h-4zM10 20h4v1h-4z" />
+  </svg>
+</button>
+
+<div id="prefs-panel" popover class="panel" role="dialog" aria-labelledby="prefs-title">
+  <div class="head">
+    <p id="prefs-title" class="title">Exibição</p>
+    <button type="button" class="close" popovertarget="prefs-panel" popovertargetaction="hide" aria-label="Fechar">×</button>
+  </div>
+
+  <fieldset>
+    <legend>Tema</legend>
+    <div class="seg">
+      <label><input type="radio" name="pref-theme" value="auto" id="pref-theme-auto" /> Sistema</label>
+      <label><input type="radio" name="pref-theme" value="light" id="pref-theme-light" /> Claro</label>
+      <label><input type="radio" name="pref-theme" value="dark" id="pref-theme-dark" /> Escuro</label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Tamanho do texto</legend>
+    <div class="font">
+      <button type="button" data-font="-1" aria-label="Diminuir texto">A−</button>
+      <output id="pref-font-value" aria-live="polite">100%</output>
+      <button type="button" data-font="1" aria-label="Aumentar texto">A+</button>
+    </div>
+  </fieldset>
+
+  <fieldset class="checks">
+    <legend class="sr-only">Acessibilidade</legend>
+    <label><input type="checkbox" id="pref-motion" /> Reduzir animações</label>
+    <label><input type="checkbox" id="pref-contrast" /> Alto contraste</label>
+    <label><input type="checkbox" id="pref-reading" /> Modo leitura</label>
+  </fieldset>
+
+  <div class="actions">
+    <button type="button" id="pref-print">Imprimir página</button>
+    <button type="button" id="pref-reset" class="ghost">Restaurar padrão</button>
+  </div>
+</div>
+
+<script>
+  type Prefs = { theme?: string; motion?: string; contrast?: string; reading?: boolean; fontScale?: number };
+  const api = (window as unknown as { janeleiroPrefs: { get(): Prefs; set(k: keyof Prefs, v: unknown): void; reset(): void } }).janeleiroPrefs;
+  const root = document.documentElement;
+  const SCALES = [0.875, 1, 1.125, 1.25, 1.5];
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+
+  function sync() {
+    const p = api.get();
+    const theme = p.theme ?? 'auto';
+    document.querySelectorAll<HTMLInputElement>('input[name="pref-theme"]').forEach((r) => (r.checked = r.value === theme));
+    $<HTMLInputElement>('pref-motion').checked = root.dataset.motion === 'reduce';
+    $<HTMLInputElement>('pref-contrast').checked = root.dataset.contrast === 'high';
+    $<HTMLInputElement>('pref-reading').checked = root.dataset.reading === 'on';
+    $<HTMLOutputElement>('pref-font-value').textContent = `${Math.round((p.fontScale ?? 1) * 100)}%`;
+  }
+
+  document.querySelectorAll<HTMLInputElement>('input[name="pref-theme"]').forEach((r) =>
+    r.addEventListener('change', () => api.set('theme', r.value === 'auto' ? null : r.value)),
+  );
+  $<HTMLInputElement>('pref-motion').addEventListener('change', (e) => api.set('motion', (e.target as HTMLInputElement).checked ? 'reduce' : 'full'));
+  $<HTMLInputElement>('pref-contrast').addEventListener('change', (e) => api.set('contrast', (e.target as HTMLInputElement).checked ? 'high' : 'normal'));
+  $<HTMLInputElement>('pref-reading').addEventListener('change', (e) => api.set('reading', (e.target as HTMLInputElement).checked || null));
+  document.querySelectorAll<HTMLButtonElement>('[data-font]').forEach((b) =>
+    b.addEventListener('click', () => {
+      const i = SCALES.indexOf(api.get().fontScale ?? 1);
+      const next = SCALES[Math.min(SCALES.length - 1, Math.max(0, (i < 0 ? 1 : i) + Number(b.dataset.font)))];
+      api.set('fontScale', next === 1 ? null : next);
+    }),
+  );
+  $('pref-print').addEventListener('click', () => {
+    $<HTMLElement>('prefs-panel').hidePopover?.();
+    window.print();
+  });
+  $('pref-reset').addEventListener('click', () => api.reset());
+  // Ao abrir, leva o foco para dentro do painel (o navegador devolve ao botão ao fechar)
+  $<HTMLElement>('prefs-panel').addEventListener('toggle', (e) => {
+    if ((e as ToggleEvent).newState === 'open') document.querySelector<HTMLInputElement>('input[name="pref-theme"]:checked')?.focus();
+  });
+  document.addEventListener('prefs-change', sync);
+  sync();
+</script>
+
+<style>
+  .toggle {
+    display: grid; place-items: center; width: 36px; height: 36px; padding: 0; cursor: pointer;
+    background: var(--panel); color: var(--fg); border: 1px solid var(--edge);
+    transition: border-color .15s, color .15s;
+  }
+  .toggle:hover { border-color: var(--accent); color: var(--accent); }
+  .toggle:hover svg { transform: rotate(90deg); }
+  .toggle svg { transition: transform .3s steps(3); }
+
+  .panel {
+    position: fixed; inset: auto; margin: 0;
+    top: calc(env(safe-area-inset-top, 0px) + 64px);
+    right: max(var(--gutter), env(safe-area-inset-right, 0px));
+    width: min(320px, calc(100vw - 2 * var(--gutter)));
+    max-height: calc(100vh - 88px); overflow: auto;
+    background: var(--panel); color: var(--fg); border: 2px solid var(--edge);
+    box-shadow: 0 0 0 1px var(--bg), 0 20px 40px -16px var(--shadow);
+    padding: 16px; font-family: var(--f-text);
+  }
+  .panel:popover-open { display: grid; gap: 16px; }
+  .head { display: flex; justify-content: space-between; align-items: center; }
+  .title { font-family: var(--f-pixel); font-weight: 500; font-size: var(--step-1); }
+  .close { font: inherit; font-size: 1.4rem; line-height: 1; background: none; border: 0; color: var(--muted); cursor: pointer; padding: 2px 6px; }
+  .close:hover { color: var(--fg); }
+
+  fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; }
+  legend { font-family: var(--f-mono); font-size: var(--mono-m); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; padding: 0; margin-bottom: 8px; }
+
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--edge); }
+  .seg label { position: relative; text-align: center; padding: 8px 4px; cursor: pointer; font-size: var(--step--1); }
+  .seg label + label { border-left: 1px solid var(--edge); }
+  .seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .seg label:has(input:checked) { background: var(--accent); color: var(--bg); font-weight: 700; }
+  .seg label:has(input:focus-visible) { outline: 2px solid var(--cool); outline-offset: 2px; }
+
+  .font { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; }
+  .font output { text-align: center; font-variant-numeric: tabular-nums; }
+
+  .checks label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .checks input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; }
+
+  .actions { display: grid; gap: 8px; }
+  .panel button:not(.close):not(.toggle) {
+    font: inherit; font-size: var(--step--1); cursor: pointer; padding: 8px 12px;
+    background: var(--bg); color: var(--fg); border: 1px solid var(--edge);
+  }
+  .panel button:not(.close):hover { border-color: var(--accent); }
+  .panel .ghost { background: transparent; color: var(--muted); }
+</style>

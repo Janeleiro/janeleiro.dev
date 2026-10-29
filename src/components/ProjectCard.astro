@@ -1,0 +1,64 @@
+---
+// Card de projeto: print numa janela retrô, selo de tipo, texto e stack.
+// `featured` deixa o print maior; sem ele o card vira uma linha (print à esquerda).
+// `wide` é o destaque que ocupa a largura toda (print grande à esquerda).
+import { kindLabel, type Project } from '../data/projects';
+
+interface Props { project: Project; wide?: boolean }
+const { slug, title, kinds, url, period, text, stack, featured } = Astro.props.project;
+const { wide = false } = Astro.props;
+const host = new URL(url).host.replace(/^www\./, '');
+---
+
+<article class:list={['project', 'reveal', featured ? 'featured' : 'row', { wide }]} data-kinds={kinds.join(' ')}>
+  <a class="window" href={url} target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">
+    <span class="bar"><i></i><i></i><i></i><span class="host">{host}</span></span>
+    <img src={`/img/projetos/${slug}-480.webp`} srcset={`/img/projetos/${slug}-480.webp 480w, /img/projetos/${slug}-960.webp 960w`}
+      sizes={featured ? '(max-width: 760px) 100vw, 440px' : '(max-width: 640px) 100vw, 260px'}
+      width="480" height="300" loading="lazy" decoding="async" alt="" />
+  </a>
+  <div class="body">
+    <div class="kinds">{kinds.map((kind) => <span class:list={['kind', kind]}>{kindLabel[kind]}</span>)}<span class="period">{period}</span></div>
+    <h3><a href={url} target="_blank" rel="noopener">{title}<span class="sr-only"> (abre em nova aba)</span></a></h3>
+    <p>{text}</p>
+    <ul class="stack" aria-label="Tecnologias">{stack.map((s) => <li>{s}</li>)}</ul>
+  </div>
+</article>
+
+<style>
+  .project { background: var(--panel); border: 1px solid var(--edge); display: grid; transition: border-color .15s, transform .15s; }
+  .project:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .featured { grid-template-rows: auto 1fr; }
+  .row { grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+  @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+  .wide { grid-column: 1 / -1; grid-template-rows: none; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+  .wide .window { border-bottom: 0; border-right: 1px solid var(--edge); align-content: start; }
+  .wide .body { align-content: center; padding: 24px; }
+  @media (max-width: 760px) { .wide { grid-template-columns: 1fr; } .wide .window { border-right: 0; border-bottom: 1px solid var(--edge); } }
+
+  .window { display: grid; text-decoration: none; background: var(--bg); border-bottom: 1px solid var(--edge); overflow: hidden; }
+  .row .window { border-bottom: 0; border-right: 1px solid var(--edge); align-content: start; }
+  @media (max-width: 640px) { .row .window { border-right: 0; border-bottom: 1px solid var(--edge); } }
+  .bar { display: flex; align-items: center; gap: 5px; padding: 6px 10px; background: var(--track); font-family: var(--f-mono); font-size: 0.95rem; color: var(--muted); }
+  .bar i { width: 7px; height: 7px; background: var(--edge); }
+  .bar i:first-child { background: var(--accent); }
+  .host { margin-left: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  img { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; transition: transform .4s ease; }
+  .project:hover img { transform: scale(1.03); }
+
+  .body { display: grid; gap: 10px; align-content: start; padding: 18px; }
+  .kinds { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+  .period { font-family: var(--f-mono); font-size: var(--mono-m); color: var(--muted); }
+  .kind { font-family: var(--f-mono); font-size: var(--mono-s); line-height: 1.2; padding: 1px 8px; border: 1px solid; }
+  .kind.cliente { color: var(--accent); }
+  .kind.pessoal { color: var(--cool); border-style: dashed; }
+  .kind.produto { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+  h3 { font-size: var(--step-1); }
+  h3 a { color: var(--fg); text-decoration: none; }
+  h3 a::after { content: ' ↗'; font-size: 0.7em; color: var(--muted); }
+  h3 a:hover { color: var(--accent); }
+  p { color: var(--muted); font-size: var(--step--1); }
+  .stack { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .stack li { font-family: var(--f-mono); font-size: var(--mono-s); line-height: 1.2; padding: 2px 8px; background: var(--bg); border: 1px solid var(--edge); }
+  .project[hidden] { display: none; }
+</style>

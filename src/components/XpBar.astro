@@ -1,0 +1,34 @@
+---
+// Nível = anos completos desde out/2018. Calculado no build e recalculado no navegador
+// (landing.ts), que também anima o preenchimento quando a barra aparece na tela.
+import { t, type Lang } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const START = Date.UTC(2018, 9, 1);
+const YEAR = 365.25 * 24 * 3600 * 1000;
+const years = (Date.now() - START) / YEAR;
+const level = Math.floor(years);
+const pct = Math.round((years - level) * 100);
+---
+
+<div class="xp" data-xp data-start={START}>
+  <div class="row"><span><b data-lv>{level}</b> anos de experiência</span><span>{t(lang, 'xp.since')}</span></div>
+  <div class="track" role="progressbar" aria-label="Progresso do ano atual de experiência" aria-valuemin="0" aria-valuemax="100" aria-valuenow={pct}>
+    <div class="fill" style={`--pct:${Math.max(pct, 4)}%`}></div>
+  </div>
+</div>
+
+<style>
+  .xp { display: grid; gap: 6px; max-width: 380px; }
+  .row { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: var(--mono-m); line-height: 1.2; color: var(--muted); }
+  .row b { color: var(--fg); font-weight: 400; }
+  .track { height: 12px; background: var(--track); border: 1px solid var(--edge); position: relative; overflow: hidden; }
+  .fill {
+    position: absolute; inset: 0 auto 0 0; width: var(--pct);
+    background: repeating-linear-gradient(90deg, var(--accent) 0 8px, var(--accent-deep) 8px 10px);
+    transition: width 1.4s steps(14);
+  }
+  :global(html.js) .xp:not(.in) .fill { width: 0; }
+</style>

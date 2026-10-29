@@ -1,0 +1,19 @@
+---
+// Clawd, o mascote do Claude Code, desenhado a partir do logo em blocos do terminal.
+// Pisca de vez em quando e dá um pulinho no hover.
+interface Props { size?: number }
+const { size = 72 } = Astro.props;
+---
+
+<svg class="clawd" viewBox="0 0 18 5" width={size} height={size * 5 / 18} shape-rendering="crispEdges" aria-hidden="true">
+  <path fill="#d97757" d="M3 0h12v1h-12zM3 1h2v1h-2zM6 1h6v1h-6zM13 1h2v1h-2zM1 2h16v1h-16zM3 3h12v1h-12zM4 4h1v1h-1zM6 4h1v1h-1zM11 4h1v1h-1zM13 4h1v1h-1z" />
+  <g class="lids" fill="#d97757"><rect x="5" y="1" width="1" height="1" /><rect x="12" y="1" width="1" height="1" /></g>
+</svg>
+
+<style>
+  .clawd { display: block; overflow: visible; }
+  .lids { opacity: 0; animation: blinkEyes 4.5s steps(1) infinite; }
+  @keyframes blinkEyes { 0%, 92% { opacity: 0; } 94%, 97% { opacity: 1; } }
+  :global(:hover) > .clawd, .clawd:hover { animation: hopClawd .45s steps(3); }
+  @keyframes hopClawd { 50% { transform: translateY(-6px); } }
+</style>
