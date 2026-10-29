@@ -1,9 +1,10 @@
 # janeleiro.dev na Hostinger (LiteSpeed/Apache)
 
-# Sempre HTTPS
+# Sempre HTTPS e sem "www", num redirecionamento só
 RewriteEngine On
+RewriteCond %{HTTP_HOST} ^www\. [NC,OR]
 RewriteCond %{HTTPS} !=on
-RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+RewriteRule ^ https://janeleiro.dev%{REQUEST_URI} [L,R=301]
 
 # Página de erro do próprio site ("Game over")
 ErrorDocument 404 /404.html
