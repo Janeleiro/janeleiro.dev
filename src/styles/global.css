@@ -122,6 +122,21 @@ html.js .reveal.in { opacity: 1; transform: none; }
 
 @keyframes blink { 50% { opacity: 0; } }
 
+/* Animações contínuas pausadas no 1º quadro até html.ambient (script em Base.astro) */
+html.js:not(.ambient) .sky::before,
+html.js:not(.ambient) .sky::after,
+html.js:not(.ambient) .portrait img,
+html.js:not(.ambient) .portrait::before,
+html.js:not(.ambient) .portrait::after,
+html.js:not(.ambient) .press::before,
+html.js:not(.ambient) .say > :last-child::after,
+html.js:not(.ambient) .walker,
+html.js:not(.ambient) .gopher,
+html.js:not(.ambient) .lids,
+html.js:not(.ambient) .dots {
+  animation-play-state: paused !important;
+}
+
 /* Menos movimento: segue o sistema, a menos que a pessoa escolha "full" no painel */
 @media (prefers-reduced-motion: reduce) {
   :root:not([data-motion='full']) { scroll-behavior: auto; }

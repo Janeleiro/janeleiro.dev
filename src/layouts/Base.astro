@@ -90,6 +90,14 @@ const ogImage = new URL('/img/og.png', Astro.site);
           matchMedia(q).addEventListener('change', apply);
         });
         d.classList.add('js');
+        // Animações contínuas (céu, retrato, piscadas, mascotes) só começam 8 s depois do carregamento
+        // ou na primeira interação; até lá ficam paradas no 1º quadro (global.css). Assim a tela
+        // "assenta" logo, o que conta para o Speed Index.
+        var ambient = function () { d.classList.add('ambient'); };
+        addEventListener('load', function () { setTimeout(ambient, 8000); });
+        ['pointermove', 'pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(function (ev) {
+          addEventListener(ev, ambient, { once: true, passive: true });
+        });
       })();
     </script>
     <slot name="head" />

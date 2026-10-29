@@ -19,7 +19,7 @@ w, h = src.size
 m = round(w * 0.012)
 av = src.crop((m, m, w - m, h - m))
 
-for size in (192, 384, 512):
+for size in (192, 256, 384, 512):
     av.resize((size, size), Image.LANCZOS).save(IMG / f"avatar-{size}.webp", "WEBP", quality=90)
 
 # Favicon e apple-touch: recorte do rosto

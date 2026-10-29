@@ -28,7 +28,8 @@ const pct = Math.round((years - level) * 100);
   .fill {
     position: absolute; inset: 0 auto 0 0; width: var(--pct);
     background: repeating-linear-gradient(90deg, var(--accent) 0 8px, var(--accent-deep) 8px 10px);
-    transition: width 1.4s steps(14);
+    /* Anima por transform (roda na GPU), não por width */
+    transform-origin: left; transition: transform 1s steps(10);
   }
-  :global(html.js) .xp:not(.in) .fill { width: 0; }
+  :global(html.js) .xp:not(.in) .fill { transform: scaleX(0); }
 </style>

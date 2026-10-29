@@ -22,7 +22,7 @@ const equipped: { name: string; icon: PixelIconName }[] = [
 <div class="status" data-typing>
   <div class="top">
     <figure class="portrait">
-      <img src="/img/avatar-384.webp" srcset="/img/avatar-192.webp 192w, /img/avatar-384.webp 384w, /img/avatar-512.webp 512w"
+      <img src="/img/avatar-384.webp" srcset="/img/avatar-192.webp 192w, /img/avatar-256.webp 256w, /img/avatar-384.webp 384w, /img/avatar-512.webp 512w"
         sizes="(max-width: 640px) 120px, 240px" width="240" height="240" alt={t(lang, 'avatar.alt')} fetchpriority="high" />
       <figcaption>@janeleiro</figcaption>
     </figure>
@@ -90,7 +90,7 @@ const equipped: { name: string; icon: PixelIconName }[] = [
     padding: 4px 10px; display: flex; gap: 8px; align-items: center; background: var(--bg);
     transition: transform .15s, box-shadow .15s;
   }
-  :global(html.js) .equip li { animation: pop .35s steps(3) calc(var(--i) * 110ms + .8s) backwards; }
+  :global(html.js) .equip li { animation: pop .3s steps(3) calc(var(--i) * 80ms + .25s) backwards; }
   @keyframes pop { from { opacity: 0; transform: scale(.6); } }
   .equip li:hover :global(.pixel-icon) { animation: hop .5s steps(3); }
   @keyframes hop { 50% { transform: translateY(-4px); } }

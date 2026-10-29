@@ -5,6 +5,57 @@
 const root = document.documentElement;
 const reduced = root.dataset.motion === 'reduce' || root.dataset.reading === 'on';
 
+// Texto digitado. Percorre os nós de texto para manter <strong>, links etc.
+// Vem antes de qualquer escrita no DOM: a leitura de offsetHeight abaixo não força recálculo de layout.
+// A fala inteira leva ~1,2 s, seja qual for o tamanho: digitação lenta atrasava o Speed Index.
+document.querySelectorAll<HTMLElement>('[data-typing]').forEach((box) => {
+  const say = box.querySelector<HTMLElement>('.say');
+  if (!say || reduced) return box.classList.add('done');
+
+  // Reserva a altura final para a caixa não crescer enquanto digita
+  say.style.minHeight = `${say.offsetHeight}px`;
+  const spoken = document.createElement('div');
+  spoken.className = 'sr-only';
+  spoken.innerHTML = say.innerHTML;
+  say.before(spoken);
+  say.setAttribute('aria-hidden', 'true');
+  const walker = document.createTreeWalker(say, NodeFilter.SHOW_TEXT);
+  const nodes: { node: Text; text: string }[] = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode as Text;
+    nodes.push({ node, text: node.data });
+    node.data = '';
+  }
+
+  const total = nodes.reduce((sum, { text }) => sum + text.length, 0);
+  const perChar = Math.min(22, Math.max(4, 1200 / total));
+  let n = 0, c = 0, timer = 0;
+  const finish = () => {
+    clearTimeout(timer);
+    nodes.forEach(({ node, text }) => (node.data = text));
+    box.classList.add('done');
+    spoken.remove();
+    say.removeAttribute('aria-hidden');
+    removeEventListener('keydown', finish);
+  };
+  const step = () => {
+    if (n >= nodes.length) return finish();
+    const { node, text } = nodes[n];
+    node.data = text.slice(0, ++c);
+    if (c >= text.length) { n++; c = 0; }
+    const ch = text[c - 1];
+    timer = window.setTimeout(step, ch === '.' || ch === '!' ? perChar * 6 : ch === ',' ? perChar * 3 : perChar);
+  };
+  box.addEventListener('click', finish, { once: true });
+  addEventListener('beforeprint', finish, { once: true });
+  // Se a pessoa ligar "reduzir animações" ou o modo leitura no meio da digitação
+  document.addEventListener('prefs-change', () => {
+    if (root.dataset.motion === 'reduce' || root.dataset.reading === 'on') finish();
+  });
+  addEventListener('keydown', finish, { once: true });
+  timer = window.setTimeout(step, 200);
+});
+
 // Atraso escalonado para os filhos de [data-stagger]
 document.querySelectorAll<HTMLElement>('[data-stagger]').forEach((group) => {
   [...group.children].forEach((child, i) => (child as HTMLElement).style.setProperty('--i', String(i)));
@@ -68,53 +119,6 @@ if ('IntersectionObserver' in window) {
 const onScroll = () => document.documentElement.classList.toggle('scrolled', scrollY > 8);
 addEventListener('scroll', onScroll, { passive: true });
 onScroll();
-
-// Texto digitado. Percorre os nós de texto para manter <strong>, links etc.
-document.querySelectorAll<HTMLElement>('[data-typing]').forEach((box) => {
-  const say = box.querySelector<HTMLElement>('.say');
-  if (!say || reduced) return box.classList.add('done');
-
-  // Reserva a altura final para a caixa não crescer enquanto digita
-  say.style.minHeight = `${say.offsetHeight}px`;
-  const spoken = document.createElement('div');
-  spoken.className = 'sr-only';
-  spoken.innerHTML = say.innerHTML;
-  say.before(spoken);
-  say.setAttribute('aria-hidden', 'true');
-  const walker = document.createTreeWalker(say, NodeFilter.SHOW_TEXT);
-  const nodes: { node: Text; text: string }[] = [];
-  while (walker.nextNode()) {
-    const node = walker.currentNode as Text;
-    nodes.push({ node, text: node.data });
-    node.data = '';
-  }
-
-  let n = 0, c = 0, timer = 0;
-  const finish = () => {
-    clearTimeout(timer);
-    nodes.forEach(({ node, text }) => (node.data = text));
-    box.classList.add('done');
-    spoken.remove();
-    say.removeAttribute('aria-hidden');
-    removeEventListener('keydown', finish);
-  };
-  const step = () => {
-    if (n >= nodes.length) return finish();
-    const { node, text } = nodes[n];
-    node.data = text.slice(0, ++c);
-    if (c >= text.length) { n++; c = 0; }
-    const ch = text[c - 1];
-    timer = window.setTimeout(step, ch === '.' || ch === '!' ? 260 : ch === ',' ? 120 : 22);
-  };
-  box.addEventListener('click', finish, { once: true });
-  addEventListener('beforeprint', finish, { once: true });
-  // Se a pessoa ligar "reduzir animações" ou o modo leitura no meio da digitação
-  document.addEventListener('prefs-change', () => {
-    if (root.dataset.motion === 'reduce' || root.dataset.reading === 'on') finish();
-  });
-  addEventListener('keydown', finish, { once: true });
-  timer = window.setTimeout(step, 450);
-});
 
 
 // Filtro de projetos (Todos / Clientes / Pessoais)

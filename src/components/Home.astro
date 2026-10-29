@@ -59,7 +59,7 @@ const instLogo: Record<string, { w: number; h: number }> = { uneb: { w: 32, h: 3
       <ul class="education" data-stagger>
         {c.about.education.map(({ title, school, logo, period, status, ongoing }) => (
           <li class:list={['edu', 'reveal', { ongoing }]}>
-            <img class="edu-logo" src={`/img/inst/${logo}.png`} width={instLogo[logo].w} height={instLogo[logo].h} alt="" loading="lazy" />
+            <img class="edu-logo" src={`/img/inst/${logo}.png`} width={instLogo[logo].w} height={instLogo[logo].h} style={`width:${instLogo[logo].w}px;height:${instLogo[logo].h}px`} alt="" loading="lazy" />
             <span class="edu-title">{title}</span>
             <span class="edu-school">{school} · {period}</span>
             <span class="status">{status}</span>
