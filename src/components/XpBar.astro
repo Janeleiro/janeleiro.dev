@@ -14,8 +14,8 @@ const pct = Math.round((years - level) * 100);
 ---
 
 <div class="xp" data-xp data-start={START}>
-  <div class="row"><span><b data-lv>{level}</b> anos de experiência</span><span>{t(lang, 'xp.since')}</span></div>
-  <div class="track" role="progressbar" aria-label="Progresso do ano atual de experiência" aria-valuemin="0" aria-valuemax="100" aria-valuenow={pct}>
+  <div class="row"><span><b data-lv>{level}</b> {t(lang, 'xp.years')}</span><span>{t(lang, 'xp.since')}</span></div>
+  <div class="track" role="progressbar" aria-label={t(lang, 'xp.label')} aria-valuemin="0" aria-valuemax="100" aria-valuenow={pct}>
     <div class="fill" style={`--pct:${Math.max(pct, 4)}%`}></div>
   </div>
 </div>

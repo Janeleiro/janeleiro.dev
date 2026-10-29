@@ -2,9 +2,13 @@
 // Painel de exibição e acessibilidade: tema, tamanho do texto, menos animação,
 // alto contraste, modo leitura e impressão. Usa a Popover API (fecha com Esc e ao clicar fora).
 // As preferências ficam no localStorage via window.janeleiroPrefs (definido em Base.astro).
+import { t, type Lang } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
 ---
 
-<button type="button" class="toggle" popovertarget="prefs-panel" aria-label="Preferências de exibição e acessibilidade" title="Exibição e acessibilidade">
+<button type="button" class="toggle" popovertarget="prefs-panel" aria-label={t(lang, 'prefs.open')} title={t(lang, 'prefs.open')}>
   <!-- Engrenagem em pixel art (grade 24×24, exibida a 1:1) -->
   <svg viewBox="0 0 24 24" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true">
     <path fill="currentColor" d="M10 3h4v1h-4zM10 4h4v1h-4zM5 5h3v1h-3zM10 5h4v1h-4zM16 5h3v1h-3zM5 6h14v1h-14zM5 7h6v1h-6zM13 7h6v1h-6zM6 8h3v1h-3zM15 8h3v1h-3zM6 9h2v1h-2zM16 9h2v1h-2zM3 10h5v1h-5zM16 10h5v1h-5zM3 11h4v1h-4zM17 11h4v1h-4zM3 12h4v1h-4zM17 12h4v1h-4zM3 13h5v1h-5zM16 13h5v1h-5zM6 14h2v1h-2zM16 14h2v1h-2zM6 15h3v1h-3zM15 15h3v1h-3zM5 16h6v1h-6zM13 16h6v1h-6zM5 17h14v1h-14zM5 18h3v1h-3zM10 18h4v1h-4zM16 18h3v1h-3zM10 19h4v1h-4zM10 20h4v1h-4z" />
@@ -13,38 +17,38 @@
 
 <div id="prefs-panel" popover class="panel" role="dialog" aria-labelledby="prefs-title">
   <div class="head">
-    <p id="prefs-title" class="title">Exibição</p>
-    <button type="button" class="close" popovertarget="prefs-panel" popovertargetaction="hide" aria-label="Fechar">×</button>
+    <p id="prefs-title" class="title">{t(lang, 'prefs.title')}</p>
+    <button type="button" class="close" popovertarget="prefs-panel" popovertargetaction="hide" aria-label={t(lang, 'prefs.close')}>×</button>
   </div>
 
   <fieldset>
-    <legend>Tema</legend>
+    <legend>{t(lang, 'prefs.theme')}</legend>
     <div class="seg">
-      <label><input type="radio" name="pref-theme" value="auto" id="pref-theme-auto" /> Sistema</label>
-      <label><input type="radio" name="pref-theme" value="light" id="pref-theme-light" /> Claro</label>
-      <label><input type="radio" name="pref-theme" value="dark" id="pref-theme-dark" /> Escuro</label>
+      <label><input type="radio" name="pref-theme" value="auto" id="pref-theme-auto" /> {t(lang, 'prefs.theme.auto')}</label>
+      <label><input type="radio" name="pref-theme" value="light" id="pref-theme-light" /> {t(lang, 'prefs.theme.light')}</label>
+      <label><input type="radio" name="pref-theme" value="dark" id="pref-theme-dark" /> {t(lang, 'prefs.theme.dark')}</label>
     </div>
   </fieldset>
 
   <fieldset>
-    <legend>Tamanho do texto</legend>
+    <legend>{t(lang, 'prefs.font')}</legend>
     <div class="font">
-      <button type="button" data-font="-1" aria-label="Diminuir texto">A−</button>
+      <button type="button" data-font="-1" aria-label={t(lang, 'prefs.font.down')}>A−</button>
       <output id="pref-font-value" aria-live="polite">100%</output>
-      <button type="button" data-font="1" aria-label="Aumentar texto">A+</button>
+      <button type="button" data-font="1" aria-label={t(lang, 'prefs.font.up')}>A+</button>
     </div>
   </fieldset>
 
   <fieldset class="checks">
-    <legend class="sr-only">Acessibilidade</legend>
-    <label><input type="checkbox" id="pref-motion" /> Reduzir animações</label>
-    <label><input type="checkbox" id="pref-contrast" /> Alto contraste</label>
-    <label><input type="checkbox" id="pref-reading" /> Modo leitura</label>
+    <legend class="sr-only">{t(lang, 'prefs.a11y')}</legend>
+    <label><input type="checkbox" id="pref-motion" /> {t(lang, 'prefs.motion')}</label>
+    <label><input type="checkbox" id="pref-contrast" /> {t(lang, 'prefs.contrast')}</label>
+    <label><input type="checkbox" id="pref-reading" /> {t(lang, 'prefs.reading')}</label>
   </fieldset>
 
   <div class="actions">
-    <button type="button" id="pref-print">Imprimir página</button>
-    <button type="button" id="pref-reset" class="ghost">Restaurar padrão</button>
+    <button type="button" id="pref-print">{t(lang, 'prefs.print')}</button>
+    <button type="button" id="pref-reset" class="ghost">{t(lang, 'prefs.reset')}</button>
   </div>
 </div>
 

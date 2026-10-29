@@ -14,9 +14,11 @@ interface Props {
   lang?: Lang;
   // Páginas que não devem aparecer em buscadores (ex.: 404)
   noindex?: boolean;
+  // Mesma página nos dois idiomas, para as tags hreflang (ex.: { pt: '/', en: '/en/' })
+  alternates?: Record<Lang, string>;
 }
 
-const { title, description, lang = 'pt', noindex = false } = Astro.props;
+const { title, description, lang = 'pt', noindex = false, alternates } = Astro.props;
 const fullTitle = title.startsWith('Jota Carvalho') ? title : `${title} · Jota Carvalho`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL('/img/og.png', Astro.site);
@@ -36,6 +38,11 @@ const ogImage = new URL('/img/og.png', Astro.site);
     <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32" />
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    {alternates && [
+      <link rel="alternate" hreflang="pt-BR" href={new URL(alternates.pt, Astro.site)} />,
+      <link rel="alternate" hreflang="en" href={new URL(alternates.en, Astro.site)} />,
+      <link rel="alternate" hreflang="x-default" href={new URL(alternates.pt, Astro.site)} />,
+    ]}
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={fullTitle} />
@@ -45,10 +52,11 @@ const ogImage = new URL('/img/og.png', Astro.site);
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Retrato em pixel art do Jota Carvalho, com o texto Full-stack developer: PHP, Laravel, Vue e WordPress" />
+    <meta property="og:image:alt" content={t(lang, 'og.alt')} />
     <meta property="og:locale" content={lang === 'pt' ? 'pt_BR' : 'en_US'} />
+    {alternates && <meta property="og:locale:alternate" content={lang === 'pt' ? 'en_US' : 'pt_BR'} />}
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image:alt" content="Retrato em pixel art do Jota Carvalho" />
+    <meta name="twitter:image:alt" content={t(lang, 'avatar.alt')} />
     <!-- Preferências (tema, contraste, movimento, fonte, leitura) aplicadas antes da pintura,
          para não piscar. "auto" segue o sistema e acompanha mudanças dele. -->
     <script is:inline>
@@ -95,10 +103,10 @@ const ogImage = new URL('/img/og.png', Astro.site);
         <slot />
       </main>
       <footer class="site-footer">
-        <a class="clawd-spot" href="https://claude.com/claude-code" target="_blank" rel="noopener" title="Feito com Claude Code"><Clawd /><span class="sr-only">Claude Code</span></a>
+        <a class="clawd-spot" href="https://claude.com/claude-code" target="_blank" rel="noopener" title={t(lang, 'footer')}><Clawd /><span class="sr-only">Claude Code</span></a>
         <span>© {new Date().getFullYear()} Jota Carvalho · Janeleiro</span>
         <span>{t(lang, 'footer')}</span>
-        <span class="credits">O Gopher foi criado por Renée French (CC BY 4.0), o elePHPant por Vincent Pontier e o Clawd é o mascote do Claude Code, da Anthropic. Logos via Simple Icons.</span>
+        <span class="credits">{t(lang, 'credits')}</span>
       </footer>
     </div>
   </body>

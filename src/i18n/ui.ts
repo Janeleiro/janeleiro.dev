@@ -1,7 +1,10 @@
-// Textos de interface por idioma. O inglês entra na fase 3.
+// Textos curtos de interface por idioma. O conteúdo das seções fica em content.ts.
 export const languages = { pt: 'Português', en: 'English' } as const;
 export type Lang = keyof typeof languages;
 export const defaultLang: Lang = 'pt';
+
+// Prefixo das rotas: o português fica na raiz, o inglês em /en/
+export const base = (lang: Lang) => (lang === 'pt' ? '/' : '/en/');
 
 export const ui = {
   pt: {
@@ -10,16 +13,88 @@ export const ui = {
     'nav.work': 'O que faço',
     'nav.projects': 'Projetos',
     'nav.contact': 'Contato',
+    'nav.short.home': 'Início',
+    'nav.short.about': 'Sobre',
+    'nav.short.work': 'Trabalho',
+    'nav.short.projects': 'Projetos',
+    'nav.short.contact': 'Contato',
     'nav.skip': 'Pular para o conteúdo',
-    'role': 'Full-stack developer',
-    'city': 'Conceição do Coité, BA',
+    'nav.main': 'Principal',
+    'nav.sections': 'Seções',
+    'lang.switch': 'EN',
+    'lang.switch.label': 'View in English',
+    'xp.years': 'anos de experiência',
     'xp.since': 'desde 2018',
+    'xp.label': 'Progresso do ano atual de experiência',
     'press': 'Conheça meu trabalho',
+    'avatar.alt': 'Retrato em pixel art do Jota',
+    'newtab': '(abre em nova aba)',
     'footer': 'Feito com Astro e Claude Code',
+    'credits': 'O Gopher foi criado por Renée French (CC BY 4.0), o elePHPant por Vincent Pontier e o Clawd é o mascote do Claude Code, da Anthropic. Logos via Simple Icons.',
+    'og.alt': 'Retrato em pixel art do Jota Carvalho, com o texto Full-stack developer: PHP, Laravel, Vue e WordPress',
+    'prefs.open': 'Preferências de exibição e acessibilidade',
+    'prefs.title': 'Exibição',
+    'prefs.close': 'Fechar',
+    'prefs.theme': 'Tema',
+    'prefs.theme.auto': 'Sistema',
+    'prefs.theme.light': 'Claro',
+    'prefs.theme.dark': 'Escuro',
+    'prefs.font': 'Tamanho do texto',
+    'prefs.font.down': 'Diminuir texto',
+    'prefs.font.up': 'Aumentar texto',
+    'prefs.a11y': 'Acessibilidade',
+    'prefs.motion': 'Reduzir animações',
+    'prefs.contrast': 'Alto contraste',
+    'prefs.reading': 'Modo leitura',
+    'prefs.print': 'Imprimir página',
+    'prefs.reset': 'Restaurar padrão',
   },
-  en: {},
+  en: {
+    'nav.home': 'Home',
+    'nav.about': 'About',
+    'nav.work': 'What I do',
+    'nav.projects': 'Projects',
+    'nav.contact': 'Contact',
+    'nav.short.home': 'Home',
+    'nav.short.about': 'About',
+    'nav.short.work': 'Work',
+    'nav.short.projects': 'Projects',
+    'nav.short.contact': 'Contact',
+    'nav.skip': 'Skip to content',
+    'nav.main': 'Main',
+    'nav.sections': 'Sections',
+    'lang.switch': 'PT',
+    'lang.switch.label': 'Ver em português',
+    'xp.years': 'years of experience',
+    'xp.since': 'since 2018',
+    'xp.label': 'Progress of the current year of experience',
+    'press': 'See my work',
+    'avatar.alt': 'Pixel art portrait of Jota',
+    'newtab': '(opens in a new tab)',
+    'footer': 'Made with Astro and Claude Code',
+    'credits': 'The Gopher was created by Renée French (CC BY 4.0), the elePHPant by Vincent Pontier, and Clawd is the Claude Code mascot, by Anthropic. Logos via Simple Icons.',
+    'og.alt': 'Pixel art portrait of Jota Carvalho, with the text Full-stack developer: PHP, Laravel, Vue and WordPress',
+    'prefs.open': 'Display and accessibility preferences',
+    'prefs.title': 'Display',
+    'prefs.close': 'Close',
+    'prefs.theme': 'Theme',
+    'prefs.theme.auto': 'System',
+    'prefs.theme.light': 'Light',
+    'prefs.theme.dark': 'Dark',
+    'prefs.font': 'Text size',
+    'prefs.font.down': 'Decrease text size',
+    'prefs.font.up': 'Increase text size',
+    'prefs.a11y': 'Accessibility',
+    'prefs.motion': 'Reduce motion',
+    'prefs.contrast': 'High contrast',
+    'prefs.reading': 'Reading mode',
+    'prefs.print': 'Print page',
+    'prefs.reset': 'Reset to default',
+  },
 } as const;
 
-export function t(lang: Lang, key: keyof (typeof ui)['pt']) {
+export type UiKey = keyof (typeof ui)['pt'];
+
+export function t(lang: Lang, key: UiKey): string {
   return (ui[lang] as Record<string, string>)[key] ?? ui.pt[key];
 }

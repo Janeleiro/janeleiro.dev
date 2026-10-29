@@ -220,7 +220,7 @@ html.js .reveal.in { opacity: 1; transform: none; }
 :root[data-reading='on'] .inv .tag { position: static !important; border: 0 !important; padding: 0 !important; font-size: inherit !important; }
 :root[data-reading='on'] .inv .tag::before { content: ' ('; }
 :root[data-reading='on'] .inv .tag::after { content: ')'; }
-:root[data-reading='on'] .project .stack::before { content: 'Tecnologias: '; color: var(--muted); font-size: var(--step--1); }
+:root[data-reading='on'] .project .stack::before { content: attr(data-label) ' '; color: var(--muted); font-size: var(--step--1); }
 
 /* Selos e períodos como texto */
 :root[data-reading='on'] .kind { padding: 0 !important; border: 0 !important; color: var(--muted) !important; }

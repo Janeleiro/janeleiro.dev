@@ -1,5 +1,5 @@
 ---
-import { t, type Lang } from '../i18n/ui';
+import { t, base, type Lang, type UiKey } from '../i18n/ui';
 import Settings from './Settings.astro';
 import PixelIcon from './PixelIcon.astro';
 import type { PixelIconName } from '../data/pixel-icons';
@@ -7,37 +7,50 @@ import type { PixelIconName } from '../data/pixel-icons';
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 
-// Âncoras com "/" na frente para funcionarem também a partir da 404.
-// `short` e `icon` são da barra inferior do celular.
-const links: { id: string; key: Parameters<typeof t>[1]; short: string; icon: PixelIconName }[] = [
-  { id: 'inicio', key: 'nav.home', short: 'Início', icon: 'home' },
-  { id: 'sobre', key: 'nav.about', short: 'Sobre', icon: 'user' },
-  { id: 'trabalho', key: 'nav.work', short: 'Trabalho', icon: 'briefcase' },
-  { id: 'projetos', key: 'nav.projects', short: 'Projetos', icon: 'folder' },
-  { id: 'contato', key: 'nav.contact', short: 'Contato', icon: 'email' },
+// Âncoras com o caminho do idioma na frente, para funcionarem também a partir da 404.
+// `short` e `icon` são da barra inferior do celular. Os ids das seções são os mesmos nos dois idiomas.
+const links: { id: string; key: UiKey; short: UiKey; icon: PixelIconName }[] = [
+  { id: 'inicio', key: 'nav.home', short: 'nav.short.home', icon: 'home' },
+  { id: 'sobre', key: 'nav.about', short: 'nav.short.about', icon: 'user' },
+  { id: 'trabalho', key: 'nav.work', short: 'nav.short.work', icon: 'briefcase' },
+  { id: 'projetos', key: 'nav.projects', short: 'nav.short.projects', icon: 'folder' },
+  { id: 'contato', key: 'nav.contact', short: 'nav.short.contact', icon: 'email' },
 ];
+const home = base(lang);
+const other: Lang = lang === 'pt' ? 'en' : 'pt';
 ---
 
 <header class="bar">
-  <nav aria-label="Principal">
-    <a class="brand" href="/#inicio">janeleiro<span>.dev</span></a>
+  <nav aria-label={t(lang, 'nav.main')}>
+    <a class="brand" href={`${home}#inicio`}>janeleiro<span>.dev</span></a>
     <ul class="top-links">
       {links.map(({ id, key }) => (
-        <li><a href={`/#${id}`} data-spy={id}>{t(lang, key)}</a></li>
+        <li><a href={`${home}#${id}`} data-spy={id}>{t(lang, key)}</a></li>
       ))}
     </ul>
-    <div class="tools"><Settings /></div>
+    <div class="tools">
+      <a class="lang" href={base(other)} hreflang={other} lang={other} data-lang-switch aria-label={t(lang, 'lang.switch.label')}>{t(lang, 'lang.switch')}</a>
+      <Settings lang={lang} />
+    </div>
   </nav>
 </header>
 
 <!-- No celular, as seções vão para uma barra fixa no rodapé, ao alcance do polegar -->
-<nav class="tabbar" aria-label="Seções">
+<nav class="tabbar" aria-label={t(lang, 'nav.sections')}>
   <ul>
     {links.map(({ id, short, icon }) => (
-      <li><a href={`/#${id}`} data-spy={id}><PixelIcon name={icon} size={24} /><span>{short}</span></a></li>
+      <li><a href={`${home}#${id}`} data-spy={id}><PixelIcon name={icon} size={24} /><span>{t(lang, short)}</span></a></li>
     ))}
   </ul>
 </nav>
+
+<script>
+  // Ao trocar de idioma, mantém a seção em que a pessoa está
+  document.querySelector<HTMLAnchorElement>('[data-lang-switch]')?.addEventListener('click', (e) => {
+    const a = e.currentTarget as HTMLAnchorElement;
+    if (location.hash) a.href = a.pathname + location.hash;
+  });
+</script>
 
 <style>
   .bar {
@@ -54,7 +67,13 @@ const links: { id: string; key: Parameters<typeof t>[1]; short: string; icon: Pi
     max-width: 880px; margin: 0 auto; padding-block: 14px;
     display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; font-family: var(--f-pixel);
   }
-  .tools { display: flex; }
+  .tools { display: flex; align-items: center; gap: 8px; }
+  .lang {
+    display: grid; place-items: center; height: 36px; padding: 0 10px; text-decoration: none;
+    font-family: var(--f-mono); font-size: var(--mono-m); color: var(--fg);
+    background: var(--panel); border: 1px solid var(--edge); transition: border-color .15s, color .15s;
+  }
+  .lang:hover { border-color: var(--accent); color: var(--accent); }
   .brand { color: var(--fg); text-decoration: none; font-weight: 500; font-size: var(--step-1); }
   .brand span { color: var(--accent); }
   .top-links { margin-left: auto; list-style: none; padding: 0 0 0 0.9em; display: flex; flex-wrap: wrap; gap: 6px 20px; }

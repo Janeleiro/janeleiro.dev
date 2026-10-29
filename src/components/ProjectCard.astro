@@ -2,11 +2,15 @@
 // Card de projeto: print numa janela retrô, selo de tipo, texto e stack.
 // `featured` deixa o print maior; sem ele o card vira uma linha (print à esquerda).
 // `wide` é o destaque que ocupa a largura toda (print grande à esquerda).
-import { kindLabel, type Project } from '../data/projects';
+import { localized, stackLabel, type Project } from '../data/projects';
+import { t, type Lang } from '../i18n/ui';
+import { content } from '../i18n/content';
 
-interface Props { project: Project; wide?: boolean }
+interface Props { project: Project; lang: Lang; wide?: boolean }
 const { slug, title, kinds, url, period, text, stack, featured } = Astro.props.project;
-const { wide = false } = Astro.props;
+const { wide = false, lang } = Astro.props;
+const { kinds: kindLabel, tech } = content[lang].projects;
+const name = localized(title, lang);
 const host = new URL(url).host.replace(/^www\./, '');
 ---
 
@@ -19,9 +23,9 @@ const host = new URL(url).host.replace(/^www\./, '');
   </a>
   <div class="body">
     <div class="kinds">{kinds.map((kind) => <span class:list={['kind', kind]}>{kindLabel[kind]}</span>)}<span class="period">{period}</span></div>
-    <h3><a href={url} target="_blank" rel="noopener">{title}<span class="sr-only"> (abre em nova aba)</span></a></h3>
-    <p>{text}</p>
-    <ul class="stack" aria-label="Tecnologias">{stack.map((s) => <li>{s}</li>)}</ul>
+    <h3><a href={url} target="_blank" rel="noopener">{name}<span class="sr-only"> {t(lang, 'newtab')}</span></a></h3>
+    <p>{text[lang]}</p>
+    <ul class="stack" aria-label={tech} data-label={tech}>{stack.map((s) => <li>{stackLabel(s, lang)}</li>)}</ul>
   </div>
 </article>
 

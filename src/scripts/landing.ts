@@ -131,6 +131,7 @@ filterButtons.forEach((btn) =>
       if (!card.hidden) card.classList.add('in');
     });
     const shown = document.querySelectorAll('.project[data-kinds]:not([hidden])').length;
-    document.getElementById('filter-status')!.textContent = `Mostrando ${shown} projetos`;
+    const status = document.getElementById('filter-status')!;
+    status.textContent = (status.dataset.template ?? '{n}').replace('{n}', String(shown));
   }),
 );

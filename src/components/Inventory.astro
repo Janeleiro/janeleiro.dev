@@ -4,6 +4,12 @@
 import PixelIcon from './PixelIcon.astro';
 import Clawd from './Clawd.astro';
 import type { PixelIconName } from '../data/pixel-icons';
+import type { Lang } from '../i18n/ui';
+import { content } from '../i18n/content';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const { techTitle, learning } = content[lang].about;
 
 const items: { name: string; icon: PixelIconName; training?: boolean }[] = [
   { name: 'JavaScript', icon: 'javascript' },
@@ -19,14 +25,14 @@ const items: { name: string; icon: PixelIconName; training?: boolean }[] = [
 ];
 ---
 
-<ul class="inv" aria-label="Outras tecnologias" data-stagger>
+<ul class="inv" aria-label={techTitle} data-stagger>
   {items.map(({ name, icon, training }) => (
     <li class:list={['tile', 'reveal', { training }]}>
       {icon === 'clawd'
         ? <span class="clawd-box"><Clawd size={54} /></span>
         : <PixelIcon name={icon} size={48} />}
       <span class="name">{name}</span>
-      {training && <span class="tag">estudando</span>}
+      {training && <span class="tag">{learning}</span>}
     </li>
   ))}
 </ul>

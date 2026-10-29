@@ -5,16 +5,12 @@ import XpBar from './XpBar.astro';
 import PixelIcon from './PixelIcon.astro';
 import type { PixelIconName } from '../data/pixel-icons';
 import { t, type Lang } from '../i18n/ui';
+import { content } from '../i18n/content';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 
-const stats = [
-  { k: 'Função', v: t(lang, 'role') },
-  { k: 'Região', v: 'Conceição do Coité, BA' },
-  { k: 'Modo', v: 'Remoto' },
-  { k: 'Idiomas', v: 'Português · Inglês' },
-];
+const { stats, stack, say } = content[lang].hero;
 const equipped: { name: string; icon: PixelIconName }[] = [
   { name: 'PHP', icon: 'php' },
   { name: 'Laravel', icon: 'laravel' },
@@ -27,7 +23,7 @@ const equipped: { name: string; icon: PixelIconName }[] = [
   <div class="top">
     <figure class="portrait">
       <img src="/img/avatar-384.webp" srcset="/img/avatar-192.webp 192w, /img/avatar-384.webp 384w, /img/avatar-512.webp 512w"
-        sizes="(max-width: 640px) 120px, 240px" width="240" height="240" alt="Retrato em pixel art do Jota" fetchpriority="high" />
+        sizes="(max-width: 640px) 120px, 240px" width="240" height="240" alt={t(lang, 'avatar.alt')} fetchpriority="high" />
       <figcaption>@janeleiro</figcaption>
     </figure>
 
@@ -43,14 +39,14 @@ const equipped: { name: string; icon: PixelIconName }[] = [
       </dl>
       <XpBar lang={lang} />
       <div class="equip">
-        <span class="k">Stack principal</span>
+        <span class="k">{stack}</span>
         <ul>{equipped.map(({ name, icon }, i) => <li style={`--i:${i}`}><PixelIcon name={icon} size={24} />{name}</li>)}</ul>
       </div>
     </div>
   </div>
 
   <div class="say">
-    <p>Olá! Eu sou o Jota, mas pela internet você me encontra como <strong>Janeleiro</strong>. Desde 2018 eu construo sistemas e sites com PHP, Laravel e Vue, trabalhando de forma remota a partir do interior da Bahia.</p>
+    <p set:html={say} />
   </div>
 </div>
 

@@ -1,8 +1,10 @@
 ---
 import PixelIcon from './PixelIcon.astro';
 import type { ContactLink } from '../data/contact';
+import { t, type Lang } from '../i18n/ui';
 
-interface Props { link: ContactLink }
+interface Props { link: ContactLink; lang: Lang }
+const { lang } = Astro.props;
 const { name, icon, handle, href } = Astro.props.link;
 const external = href.startsWith('https://');
 ---
@@ -10,7 +12,7 @@ const external = href.startsWith('https://');
 <a class="card" href={href} {...(external ? { rel: 'me noopener', target: '_blank' } : {})}>
   <PixelIcon name={icon} size={48} />
   <span class="txt"><span class="name">{name}</span><span class="handle">{handle}</span></span>
-  {external && <span class="sr-only"> (abre em nova aba)</span>}
+  {external && <span class="sr-only"> {t(lang, 'newtab')}</span>}
 </a>
 
 <style>
